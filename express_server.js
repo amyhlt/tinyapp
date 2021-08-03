@@ -36,22 +36,43 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
     res.render("urls_show", templateVars);
 });
 app.get("/u/:shortURL", (req, res) => {
     const longURL = urlDatabase[req.params.shortURL];
+   
     res.redirect(longURL);
 });
+
 app.post("/urls", (req, res) => {
+    console.log(Object.values(urlDatabase));
+    console.log(req.body["longURL"]);
+  if (!Object.values(urlDatabase).includes(req.body["longURL"])){
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = req.body["longURL"];
     res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.send("longURL already exits. You can edit it!");
+    res.redirect('/urls/');
+  }
+    
 });
 app.post('/urls/:shortURL/delete',(req, res) => {
+    
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls/');
 });
+app.post('/urls/:id',(req, res) => {
+    const longURL =urlDatabase[req.params.id];
+    
+    const shortURL = generateRandomString();
+    delete urlDatabase[req.params.id];
+    urlDatabase[shortURL] =longURL;
+    
+    res.redirect('/urls/');
+});
+
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
 });
