@@ -6,13 +6,22 @@
   <title>URL - TinyApp Example</title>
 </head>
 
-<body>
+<body> <%- include('partials/_header') %>
+
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-      </div>
+        <h3 >Edit</h3>
+        <form  action="/urls/<%= shortURL  %>" method="POST" >
+          <div class="form-group mb-2">
+            <label for="longURL">New URL:</label>
+            <input  type="text" name="longURL" placeholder="<%= longURL %>" style="width: 300px; ">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div class="card-body">
     <div class="card-footer text-muted"></div>
   </div>
   <!-- Bootstrap JS -->
