@@ -85,8 +85,7 @@ app.get("/urls/:shortURL", (req, res) => {
     const arrShortUrl = Object.keys(urlDatabase);
     const myUrl = Object.keys(urlsForUser(userId, urlDatabase));
     const shortURL = req.params.shortURL;
-    console.log(myUrl);
-    console.log(myUrl.includes(shortURL));
+   
     if (isLogged(userId, users)) {
         if (!arrShortUrl.includes(shortURL)) {
             return res.status(401).send("No found !");
