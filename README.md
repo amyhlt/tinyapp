@@ -8,7 +8,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 
 ![URl list](https://github.com/amytang1234/tinyapp/blob/master/docs/urls.png)
-![log in]https://github.com/amytang1234/tinyapp/blob/master/docs/login.png)
+![log in](https://github.com/amytang1234/tinyapp/blob/master/docs/login.png)
 
 ## Dependencies
 
