@@ -4,11 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-![Create a new url](https://github.com/amytang1234/tinyapp/blob/master/docs/create.jpg?raw=true)
+![edit a url](https://github.com/amytang1234/tinyapp/blob/master/docs/edit.png)
 
 
-![URl list](https://github.com/amytang1234/tinyapp/blob/master/docs/urls.jpg?raw=true)
-![log in](https://github.com/amytang1234/tinyapp/blob/master/docs/login.jpg?raw=true)
+![URl list](https://github.com/amytang1234/tinyapp/blob/master/docs/urls.png)
+![log in](https://github.com/amytang1234/tinyapp/blob/master/docs/login.png)
 
 ## Dependencies
 
