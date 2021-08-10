@@ -22,7 +22,7 @@ const {
     getUserByEmail,
     isLogged, getDate
 } = require("./helpers");
-const {urlDatabase,users} = require("./database/database");
+const { urlDatabase, users } = require("./database/database");
 
 //------------ all the get routes below-------
 app.get("/", (req, res) => {
@@ -43,8 +43,8 @@ app.get("/urls", (req, res) => {
         const urls = urlsForUser(userId, urlDatabase);
         return res.render("urls_index", templateVars(urls, userId, users));
     } else {
-        errors.push({msg: "Please sign up or long in first!"});
-        res.render('login',{errors, user: {}});
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
     }
 });
 // create a new shortURL for a longURL 
@@ -54,24 +54,41 @@ app.get("/urls/new", (req, res) => {
     if (isLogged(userId, users)) {
         res.render("urls_new", templateVars(urlDatabase, userId, users));
     } else {
-        errors.push({msg: "Please sign up or long in first!"});
-        res.render('login',{errors, user: {}});
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
     }
 });
 // browse a longURL by a shoutURl 
 app.get("/u/:shortURL", (req, res) => {
+    const userId = req.session.user_id;
+    const arrShortUrl = Object.keys(urlDatabase);
+    const urls = urlsForUser(userId, urlDatabase);
+    const myUrl = Object.keys(urls);
     let errors = [];
     const { shortURL } = req.params;
-    const urlObj = req.params.shortURL["longURL"];
-    if (urlDatabase[shortURL]) {
-        const longURL = urlDatabase[urlObj];
-        res.redirect(longURL);
-    }
-    else {
-        errors.push({msg:  "This shortURL isn't found!"});
-          res.render('/urls/',{errors, user: {}});
-    }
 
+    if (isLogged(userId, users)) {
+        //check if this shortURL in the urlDatabase
+        if (arrShortUrl.includes(shortURL)) {
+            // check if it is this user's URL
+            if (myUrl.includes(shortURL)) {
+                const longURL = urlDatabase[shortURL]["longURL"];
+                res.redirect(longURL);
+            }
+            if (!myUrl.includes(shortURL)) {
+                errors.push({ msg: "Can't access to this url! It doesn't belong to you!" });
+                res.render('nonexist', { errors, user: isLogged(userId, users) });
+            }
+        }
+        if (!arrShortUrl.includes(shortURL)) {
+            errors.push({ msg: "This shortURL isn't found!" });
+            res.render('nonexist', { errors, user: isLogged(userId, users)});
+        }
+    }
+    if (!isLogged(userId, users)) {
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
+    }
 });
 // edit URL page
 app.get("/urls/:shortURL", (req, res) => {
@@ -96,16 +113,14 @@ app.get("/urls/:shortURL", (req, res) => {
             }
             if (!myUrl.includes(shortURL)) {
                 errors.push({ msg: "Can't access to this url! It doesn't belong to you!" });
-                res.render('/urls/', { errors, user: {} });
-
+                res.render('nonexist', { errors, user:isLogged(userId, users) });
             }
         }
         if (!arrShortUrl.includes(shortURL)) {
             errors.push({ msg: "This shortURL isn't found!" });
-            res.render('/urls/', { errors, user: {} });
+            res.render('nonexist', { errors, user: isLogged(userId, users)});
         }
     }
-
     if (!isLogged(userId, users)) {
         errors.push({ msg: "Please sign up or long in first!" });
         res.render('login', { errors, user: {} });
@@ -121,8 +136,6 @@ app.get("/register", (req, res) => {
         let template = { user: {} };
         res.render("registration", template);
     }
-
-
 });
 //login page by fill out Email and password
 app.get("/login", (req, res) => {
@@ -145,15 +158,15 @@ app.post("/urls", (req, res) => {
     if (isLogged(userId, users)) {
         let arr = Object.values(urlDatabase);
         const shortURL = generateRandomString();
-        urlDatabase[shortURL] = { 
+        urlDatabase[shortURL] = {
             longURL: req.body["longURL"],
-            userID: userId, 
-            date: getDate() 
+            userID: userId,
+            date: getDate()
         };
         res.redirect(`/urls/${shortURL}`);
     } else {
-        errors.push({msg: "Please sign up or long in first!"});
-        res.render('login',{errors, user: {}});
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
     }
 });
 // delete a shortURL by id
@@ -164,25 +177,25 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     const shortURL = req.params.shortURL;
     let errors = [];
     if (isLogged(userId, users)) {
-      if (arrShortUrl.includes(shortURL)) {
-        if (myUrl.includes(shortURL)) {
-            delete urlDatabase[req.params.shortURL];
-            res.redirect('/urls/');
-        }  
-        if (!myUrl.includes(shortURL)) {
-            
-            errors.push({msg: "Can't delete this url! It doesn't belong to you!"});
-            res.render('/urls/',{errors, user: {}});
+        if (arrShortUrl.includes(shortURL)) {
+            if (myUrl.includes(shortURL)) {
+                delete urlDatabase[req.params.shortURL];
+                res.redirect('/urls/');
+            }
+            if (!myUrl.includes(shortURL)) {
+
+                errors.push({ msg: "Can't delete this url! It doesn't belong to you!" });
+                res.render('urls_index', { errors, user: {} });
+            }
         }
-      }
-      if (!arrShortUrl.includes(shortURL)) {
-            errors.push({msg:  "This shortURL isn't found!"});
-            res.render('/urls/',{errors, user: {}});
-      }
-    } 
+        if (!arrShortUrl.includes(shortURL)) {
+            errors.push({ msg: "This shortURL isn't found!" });
+            res.render('urls_index', { errors, urls:{},user: {} });
+        }
+    }
     if (!isLogged(userId, users)) {
-        errors.push({msg: "Please sign up or long in first!"});
-        res.render('login',{errors, user: {}});
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
     }
 });
 // edit a URL. put new URL into urlDatebase
@@ -192,12 +205,12 @@ app.post('/urls/:id', (req, res) => {
     const longURL = req.body.longURL;
     let errors = [];
     if (isLogged(userId, users)) {
-         delete urlDatabase[urlId];
+        delete urlDatabase[urlId];
         urlDatabase[urlId] = { longURL: longURL, userID: userId, date: getDate() };
         res.redirect('/urls/');
-    } else {
-        errors.push({msg: "Please sign up or long in first!"});
-        res.render('login',{errors, user: {}});
+    } else {                                                        g
+        errors.push({ msg: "Please sign up or long in first!" });
+        res.render('login', { errors, user: {} });
     }
 });
 // check if user exists
@@ -222,9 +235,9 @@ app.post("/register", (req, res) => {
         req.session.user_id = userId;
         res.redirect('/urls/');
     } else {
-        errors.push({msg: 'email already registered'});
-        res.render('registration',{errors,email,password,user:{}})  
-       } 
+        errors.push({ msg: 'email already registered' });
+        res.render('registration', { errors, email, password, user: {} })
+    }
 });
 // check if the user exists
 // check if email and password are correct
@@ -240,7 +253,7 @@ app.post("/login", (req, res) => {
         for (let user in users) {
             const hashedPassword = users[user]["password"];
             const passwordCheck = bcrypt.compareSync(password, hashedPassword);
-            if ( passwordCheck && email === users[user].email) {
+            if (passwordCheck && email === users[user].email) {
                 isCorrect = true;
                 // Setting session
                 req.session.user_id = user;
@@ -249,13 +262,13 @@ app.post("/login", (req, res) => {
             }
         }
         if (!isCorrect) {
-            errors.push({msg: 'Email or password is incorrect!'});
-            res.render('login',{errors,email,password , user: {} }) ;
+            errors.push({ msg: 'Email or password is incorrect!' });
+            res.render('login', { errors, email, password, user: {} });
         }
-    } 
+    }
     if (!user) {
-        errors.push({msg: "The account doesn't exist!"});
-        res.render('login',{errors,email,password, user: {}});
+        errors.push({ msg: "The account doesn't exist!" });
+        res.render('login', { errors, email, password, user: {} });
     }
 });
 // logout and clear cookie
