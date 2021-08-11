@@ -62,32 +62,15 @@ app.get("/urls/new", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
     const userId = req.session.user_id;
     const arrShortUrl = Object.keys(urlDatabase);
-    const urls = urlsForUser(userId, urlDatabase);
-    const myUrl = Object.keys(urls);
     let errors = [];
     const { shortURL } = req.params;
-
-    if (isLogged(userId, users)) {
-        //check if this shortURL in the urlDatabase
-        if (arrShortUrl.includes(shortURL)) {
-            // check if it is this user's URL
-            if (myUrl.includes(shortURL)) {
-                const longURL = urlDatabase[shortURL]["longURL"];
-                res.redirect(longURL);
-            }
-            if (!myUrl.includes(shortURL)) {
-                errors.push({ msg: "Can't access to this url! It doesn't belong to you!" });
-                res.render('nonexist', { errors, user: isLogged(userId, users) });
-            }
-        }
-        if (!arrShortUrl.includes(shortURL)) {
-            errors.push({ msg: "This shortURL isn't found!" });
-            res.render('nonexist', { errors, user: isLogged(userId, users)});
-        }
-    }
-    if (!isLogged(userId, users)) {
-        errors.push({ msg: "Please sign up or long in first!" });
-        res.render('login', { errors, user: {} });
+    //check if this shortURL in the urlDatabase
+    if (arrShortUrl.includes(shortURL)) {
+      const longURL = urlDatabase[shortURL]["longURL"];
+      res.redirect(longURL);  
+    } else  {
+        errors.push({ msg: "This shortURL isn't found!" });
+        res.render('nonexist', { errors, user: isLogged(userId, users)});
     }
 });
 // edit URL page
